@@ -11,7 +11,7 @@ namespace PaperUpdater {
     internal class Program {
         public static string PaperPath { get; set; }
         public static string OldPaperPath { get; set; }
-        public static string MCVersion { get; } = "1.16.5";
+        public static string MCVersion { get; } = "1.17";
 
         private static void Main(string[] args) {
             APIUtil.InitializeClient();
