@@ -53,7 +53,7 @@ namespace PaperUpdater {
             string fileName = Path.GetFileName(PaperPath);
             PaperPath = PaperPath.Replace(fileName, $"paper-{MCVersion}-{latest}.jar");
 
-            Console.WriteLine($"Downloading from: {url}...");
+            Console.WriteLine($"Downloading from: {url}");
             APIUtil.DownloadJar(new Uri(url), PaperPath);
         }
 
