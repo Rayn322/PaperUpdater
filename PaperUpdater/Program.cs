@@ -61,10 +61,12 @@ namespace PaperUpdater {
             string paperFolder = Path.GetDirectoryName(PaperPath);
             string scriptPath;
 
-            if (File.Exists(paperFolder + "\\run.bat")) {
-                scriptPath = paperFolder + "\\run.bat";
-            } else if (File.Exists(paperFolder + "\\start.bat")) {
-                scriptPath = paperFolder + "\\start.bat";
+            if (File.Exists(Path.Combine(paperFolder, "run.bat"))) {
+                scriptPath = Path.Combine(paperFolder, "run.bat");
+                
+            } else if (File.Exists(Path.Combine(paperFolder, "start.bat"))) {
+                scriptPath = Path.Combine(paperFolder, "start.bat");
+
             } else {
                 Console.WriteLine("Could not find start script");
                 return;
