@@ -14,7 +14,7 @@ namespace PaperUpdater {
         public static string MCVersion { get; } = "1.17";
 
         private static void Main(string[] args) {
-            APIUtil.InitializeClient();
+            PaperAPI.InitializeClient();
             SelectPaper();
             DownloadPaper();
             Process.GetCurrentProcess().WaitForExit();
@@ -43,7 +43,7 @@ namespace PaperUpdater {
         }
 
         private static void DownloadPaper() {
-            VersionList versionList = APIUtil.GetVersionList().Result;
+            VersionList versionList = PaperAPI.GetVersionList().Result;
             int[] builds = versionList.Builds;
             int latest = builds.Max();
             string url = $"https://papermc.io/api/v2/projects/paper/versions/{MCVersion}/builds/{latest}/downloads/paper-{MCVersion}-{latest}.jar";
@@ -54,7 +54,7 @@ namespace PaperUpdater {
             PaperPath = PaperPath.Replace(fileName, $"paper-{MCVersion}-{latest}.jar");
 
             Console.WriteLine($"Downloading from: {url}");
-            APIUtil.DownloadJar(new Uri(url), PaperPath);
+            PaperAPI.DownloadJar(new Uri(url), PaperPath);
         }
 
         public static void EditStartScript() {

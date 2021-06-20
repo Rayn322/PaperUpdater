@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PaperUpdater {
 
-    internal class APIUtil {
+    internal class PaperAPI {
         public static HttpClient APIClient { get; set; }
         private static int Progress = 0;
 
@@ -36,7 +36,7 @@ namespace PaperUpdater {
             client.DownloadFileAsync(uri, fileName);
         }
 
-        public static void OnDownloadComplete(object sender, AsyncCompletedEventArgs e) {
+        private static void OnDownloadComplete(object sender, AsyncCompletedEventArgs e) {
             if (e.Cancelled) {
                 Console.WriteLine("File download cancelled.");
             } else if (e.Error != null) {
@@ -51,7 +51,7 @@ namespace PaperUpdater {
             Environment.Exit(0);
         }
 
-        public static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e) {
+        private static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e) {
             if (e.ProgressPercentage > Progress) {
                 Progress = e.ProgressPercentage;
                 Console.WriteLine($"{Progress}% complete");
