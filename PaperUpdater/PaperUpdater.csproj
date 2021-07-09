@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\VersionList.cs" />
+    <Compile Include="API\BuildList.cs" />
     <Compile Include="API\PaperAPI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

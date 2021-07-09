@@ -19,10 +19,21 @@ namespace PaperUpdater {
         }
 
         public static async Task<VersionList> GetVersionList() {
-            using (HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper/versions/" + Program.MCVersion)) {
+            using (HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper")) {
                 if (response.IsSuccessStatusCode) {
                     VersionList versionList = await response.Content.ReadAsAsync<VersionList>();
                     return versionList;
+                } else {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
+        }
+
+        public static async Task<BuildList> GetBuildList() {
+            using (HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper/versions/" + Program.MCVersion)) {
+                if (response.IsSuccessStatusCode) {
+                    BuildList buildList = await response.Content.ReadAsAsync<BuildList>();
+                    return buildList;
                 } else {
                     throw new Exception(response.ReasonPhrase);
                 }
@@ -45,10 +56,6 @@ namespace PaperUpdater {
                 Console.WriteLine($"Download Successful! File saved to {Program.PaperPath}");
                 Program.EditStartScript();
             }
-
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
-            Environment.Exit(0);
         }
 
         private static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e) {

@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -11,12 +12,18 @@ namespace PaperUpdater {
     internal class Program {
         public static string PaperPath { get; set; }
         public static string OldPaperPath { get; set; }
-        public static string MCVersion { get; } = "1.17";
+        public static string MCVersion { get; private set; }
 
         private static void Main(string[] args) {
-            PaperAPI.InitializeClient();
-            SelectPaper();
-            DownloadPaper();
+            if (NetworkInterface.GetIsNetworkAvailable()) {
+                PaperAPI.InitializeClient();
+                SelectPaper();
+                DownloadPaper();
+            } else {
+                Console.WriteLine("No internet connection detected!");
+                UpdateFinish();
+            }
+
             Process.GetCurrentProcess().WaitForExit();
         }
 
@@ -43,8 +50,22 @@ namespace PaperUpdater {
         }
 
         private static void DownloadPaper() {
-            VersionList versionList = PaperAPI.GetVersionList().Result;
-            int[] builds = versionList.Builds;
+            VersionList versionList;
+
+            // check again because NetworkInterface.GetIsNetworkAvailable() doesn't work sometimes.
+            try {
+                // assuming that the most recent version is last in the array, this will get the most recent Minecraft version
+                versionList = PaperAPI.GetVersionList().Result;
+                int i = versionList.Versions.Length;
+                MCVersion = versionList.Versions[i - 1];
+            } catch {
+                Console.WriteLine("Could not connect to Paper!");
+                UpdateFinish();
+                return;
+            }
+
+            BuildList buildList = PaperAPI.GetBuildList().Result;
+            int[] builds = buildList.Builds;
             int latest = builds.Max();
             string url = $"https://papermc.io/api/v2/projects/paper/versions/{MCVersion}/builds/{latest}/downloads/paper-{MCVersion}-{latest}.jar";
 
@@ -63,10 +84,8 @@ namespace PaperUpdater {
 
             if (File.Exists(Path.Combine(paperFolder, "run.bat"))) {
                 scriptPath = Path.Combine(paperFolder, "run.bat");
-                
             } else if (File.Exists(Path.Combine(paperFolder, "start.bat"))) {
                 scriptPath = Path.Combine(paperFolder, "start.bat");
-
             } else {
                 Console.WriteLine("Could not find start script");
                 return;
@@ -77,6 +96,14 @@ namespace PaperUpdater {
             File.WriteAllText(scriptPath, text);
 
             Console.WriteLine("Successfully updated start script.");
+
+            UpdateFinish();
+        }
+
+        public static void UpdateFinish() {
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+            Environment.Exit(0);
         }
     }
 }
