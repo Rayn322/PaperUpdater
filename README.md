@@ -1,2 +1,2 @@
 # PaperUpdater
- A quick way to update your paper server
+ A quick and easy way to update your paper Minecraft server.
