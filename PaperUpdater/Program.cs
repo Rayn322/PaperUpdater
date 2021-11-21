@@ -70,9 +70,9 @@ namespace PaperUpdater {
             int latest = builds.Max();
             string url = $"https://papermc.io/api/v2/projects/paper/versions/{McVersion}/builds/{latest}/downloads/paper-{McVersion}-{latest}.jar";
 
-            File.Delete(PaperPath);
             // changes name of file to align with new version
             string fileName = Path.GetFileName(PaperPath);
+            File.Delete(PaperPath);
             PaperPath = PaperPath.Replace(fileName, $"paper-{McVersion}-{latest}.jar");
 
             Console.WriteLine($"Downloading from: {url}");
