@@ -5,17 +5,20 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
-using System.Windows.Forms;
+using Modern.Forms;
 
 namespace PaperUpdater {
 
     internal class Program {
         public static string PaperPath { get; set; }
         public static string OldPaperPath { get; set; }
-        public static string MCVersion { get; private set; }
+        public static string McVersion { get; private set; }
+        private static readonly Form Form = new Form();
 
         private static void Main(string[] args) {
+            Console.WriteLine("test");
             if (NetworkInterface.GetIsNetworkAvailable()) {
+                Console.WriteLine("test 2");
                 PaperAPI.InitializeClient();
                 SelectPaper();
                 DownloadPaper();
@@ -28,13 +31,18 @@ namespace PaperUpdater {
         }
 
         private static void SelectPaper() {
-            Thread thread = new Thread(() => {
+            Console.WriteLine("test 3");
+
+            Thread thread = new(() => {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
 
-                openFileDialog.Filter = "Paper Jar (*.jar)|*.jar";
+                // openFileDialog.Filter = "Paper Jar (*.jar)|*.jar";
+                openFileDialog.AddFilter("Paper Jar (*.jar)", "jar");
                 openFileDialog.Title = "Select your Paper jar file";
+                openFileDialog.AllowMultiple = false;
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                if (openFileDialog.ShowDialog(Form).Result == DialogResult.OK) {
+                    Console.WriteLine("where");
                     PaperPath = openFileDialog.FileName;
                     OldPaperPath = openFileDialog.FileName;
                 } else {
@@ -42,7 +50,7 @@ namespace PaperUpdater {
                 }
             });
 
-            thread.SetApartmentState(ApartmentState.STA);
+            if (OperatingSystem.IsWindows()) thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             thread.Join();
 
@@ -50,14 +58,12 @@ namespace PaperUpdater {
         }
 
         private static void DownloadPaper() {
-            VersionList versionList;
-
             // check again because NetworkInterface.GetIsNetworkAvailable() doesn't work sometimes.
             try {
                 // assuming that the most recent version is last in the array, this will get the most recent Minecraft version
-                versionList = PaperAPI.GetVersionList().Result;
+                VersionList versionList = PaperAPI.GetVersionList().Result;
                 int i = versionList.Versions.Length;
-                MCVersion = versionList.Versions[i - 1];
+                McVersion = versionList.Versions[i - 1];
             } catch {
                 Console.WriteLine("Could not connect to Paper!");
                 UpdateFinish();
@@ -67,12 +73,12 @@ namespace PaperUpdater {
             BuildList buildList = PaperAPI.GetBuildList().Result;
             int[] builds = buildList.Builds;
             int latest = builds.Max();
-            string url = $"https://papermc.io/api/v2/projects/paper/versions/{MCVersion}/builds/{latest}/downloads/paper-{MCVersion}-{latest}.jar";
+            string url = $"https://papermc.io/api/v2/projects/paper/versions/{McVersion}/builds/{latest}/downloads/paper-{McVersion}-{latest}.jar";
 
             File.Delete(PaperPath);
             // changes name of file to align with new version
             string fileName = Path.GetFileName(PaperPath);
-            PaperPath = PaperPath.Replace(fileName, $"paper-{MCVersion}-{latest}.jar");
+            PaperPath = PaperPath.Replace(fileName, $"paper-{McVersion}-{latest}.jar");
 
             Console.WriteLine($"Downloading from: {url}");
             PaperAPI.DownloadJar(new Uri(url), PaperPath);

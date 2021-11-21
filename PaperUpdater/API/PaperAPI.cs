@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 namespace PaperUpdater {
 
     internal class PaperAPI {
-        public static HttpClient APIClient { get; set; }
-        private static int Progress = 0;
+        private static HttpClient APIClient { get; set; }
+        private static int Progress;
 
         public static void InitializeClient() {
             APIClient = new HttpClient();
@@ -19,31 +19,30 @@ namespace PaperUpdater {
         }
 
         public static async Task<VersionList> GetVersionList() {
-            using (HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper")) {
-                if (response.IsSuccessStatusCode) {
-                    VersionList versionList = await response.Content.ReadAsAsync<VersionList>();
-                    return versionList;
-                } else {
-                    throw new Exception(response.ReasonPhrase);
-                }
+            using HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper");
+            if (response.IsSuccessStatusCode) {
+                VersionList versionList = await response.Content.ReadAsAsync<VersionList>();
+                return versionList;
             }
+
+            throw new Exception(response.ReasonPhrase);
         }
 
         public static async Task<BuildList> GetBuildList() {
-            using (HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper/versions/" + Program.MCVersion)) {
-                if (response.IsSuccessStatusCode) {
-                    BuildList buildList = await response.Content.ReadAsAsync<BuildList>();
-                    return buildList;
-                } else {
-                    throw new Exception(response.ReasonPhrase);
-                }
+            using HttpResponseMessage response = await APIClient.GetAsync("https://papermc.io/api/v2/projects/paper/versions/" + Program.McVersion);
+            if (response.IsSuccessStatusCode) {
+                BuildList buildList = await response.Content.ReadAsAsync<BuildList>();
+                return buildList;
             }
+
+            throw new Exception(response.ReasonPhrase);
         }
 
         public static void DownloadJar(Uri uri, string fileName) {
+            // TODO: switch to HTTPClient
             WebClient client = new WebClient();
-            client.DownloadFileCompleted += new AsyncCompletedEventHandler(OnDownloadComplete);
-            client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(OnDownloadProgressChanged);
+            client.DownloadFileCompleted += OnDownloadComplete;
+            client.DownloadProgressChanged += OnDownloadProgressChanged;
             client.DownloadFileAsync(uri, fileName);
         }
 
