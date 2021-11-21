@@ -16,9 +16,7 @@ namespace PaperUpdater {
         private static readonly Form Form = new Form();
 
         private static void Main(string[] args) {
-            Console.WriteLine("test");
             if (NetworkInterface.GetIsNetworkAvailable()) {
-                Console.WriteLine("test 2");
                 PaperAPI.InitializeClient();
                 SelectPaper();
                 DownloadPaper();
@@ -31,8 +29,6 @@ namespace PaperUpdater {
         }
 
         private static void SelectPaper() {
-            Console.WriteLine("test 3");
-
             Thread thread = new(() => {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
 
@@ -42,7 +38,6 @@ namespace PaperUpdater {
                 openFileDialog.AllowMultiple = false;
 
                 if (openFileDialog.ShowDialog(Form).Result == DialogResult.OK) {
-                    Console.WriteLine("where");
                     PaperPath = openFileDialog.FileName;
                     OldPaperPath = openFileDialog.FileName;
                 } else {
