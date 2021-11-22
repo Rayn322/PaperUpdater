@@ -1,21 +1,20 @@
-﻿using PaperUpdater.API;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
 using Modern.Forms;
+using PaperUpdater.API;
 
 namespace PaperUpdater {
-
     internal class Program {
+        private static readonly Form Form = new();
         public static string PaperPath { get; set; }
         public static string OldPaperPath { get; set; }
         public static string McVersion { get; private set; }
-        private static readonly Form Form = new Form();
 
-        private static void Main(string[] args) {
+        private static void Main() {
             if (NetworkInterface.GetIsNetworkAvailable()) {
                 PaperAPI.InitializeClient();
                 SelectPaper();
@@ -30,16 +29,14 @@ namespace PaperUpdater {
 
         private static void SelectPaper() {
             Thread thread = new(() => {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
+                OpenFileDialog openFileDialog = new();
 
-                // openFileDialog.Filter = "Paper Jar (*.jar)|*.jar";
                 openFileDialog.AddFilter("Paper Jar (*.jar)", "jar");
                 openFileDialog.Title = "Select your Paper jar file";
                 openFileDialog.AllowMultiple = false;
 
                 if (openFileDialog.ShowDialog(Form).Result == DialogResult.OK) {
-                    PaperPath = openFileDialog.FileName;
-                    OldPaperPath = openFileDialog.FileName;
+                    PaperPath = OldPaperPath = openFileDialog.FileName;
                 } else {
                     Environment.Exit(0);
                 }
@@ -53,7 +50,6 @@ namespace PaperUpdater {
         }
 
         private static void DownloadPaper() {
-            // check again because NetworkInterface.GetIsNetworkAvailable() doesn't work sometimes.
             try {
                 // assuming that the most recent version is last in the array, this will get the most recent Minecraft version
                 VersionList versionList = PaperAPI.GetVersionList().Result;
@@ -68,7 +64,8 @@ namespace PaperUpdater {
             BuildList buildList = PaperAPI.GetBuildList().Result;
             int[] builds = buildList.Builds;
             int latest = builds.Max();
-            string url = $"https://papermc.io/api/v2/projects/paper/versions/{McVersion}/builds/{latest}/downloads/paper-{McVersion}-{latest}.jar";
+            string url =
+                $"https://papermc.io/api/v2/projects/paper/versions/{McVersion}/builds/{latest}/downloads/paper-{McVersion}-{latest}.jar";
 
             // changes name of file to align with new version
             string fileName = Path.GetFileName(PaperPath);
